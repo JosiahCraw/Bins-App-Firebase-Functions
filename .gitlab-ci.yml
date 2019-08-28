@@ -1,0 +1,6 @@
+before_script:
+    - sudo yum -y update
+
+deploy:
+    script:
+        - firebase deploy --only functions
