@@ -8,15 +8,13 @@ const db = admin.firestore();
 exports.setUpUser = functions.auth.user().onCreate((user) => {
     db.collection('Users')
     .doc(user.uid)
-    .set({Count:0});
+    .set({Count:0,
+        Name:user.uid,
+        bin:''});
+});
 
-    db.collection('Users')
-    .doc(user.uid)
-    .set({Name:user.displayName})
-
-    db.collection('Users')
-    .doc(user.uid)
-    .set({bin:''})
+exports.removeUser = functions.auth.user().onDelete((user) => {
+    db.collection('Users').doc(user.uid).delete()
 });
 // // Create and Deploy Your First Cloud Functions
 // // https://firebase.google.com/docs/functions/write-firebase-functions
