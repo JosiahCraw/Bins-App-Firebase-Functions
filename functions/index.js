@@ -9,7 +9,7 @@ exports.setUpUser = functions.auth.user().onCreate((user) => {
     db.collection('Users')
     .doc(user.uid)
     .set({Count:0,
-        Name:user.uid,
+        Name:user.displayName,
         bin:''});
 });
 
