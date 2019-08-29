@@ -18,5 +18,5 @@ exports.removeUser = functions.auth.user().onDelete((user) => {
 
 exports.addUserToBin = db.collection('tempBins').doc('{tempID}').onUpdate((event) => {
     db.collection('bins').doc(event.data.bin)
-        .set({userActive:event.data.user);
+        .set({userActive:event.data.user});
 });
