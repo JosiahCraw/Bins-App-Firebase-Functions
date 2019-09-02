@@ -40,10 +40,15 @@ exports.destroyTempBin = functions.firestore.document('tempBins/{tempID}').onUpd
 
 exports.createTempBin = functions.firestore.document('bins/{binID}').onUpdate((snap, context) => {
     if (snap.after.data().tempCode != snap.before.data().tempCode) {
+        db.doc(`bins/${context.params.binID}`)
+            .update({user:''})
+            .then(() => {
+                console.log(`Removed user from ${context.params.binID}`);
+            });
         db.doc(`tempBins/${snap.before.data().tempCode}`)
             .update({closed:true})
             .then(() => {
-                console.log(`Set closed: ${snap.before.data().tempCode}`)
+                console.log(`Set closed: ${snap.before.data().tempCode}`);
             });
 
         db.doc(`tempBins/${snap.after.data().tempCode}`).set(
@@ -52,7 +57,7 @@ exports.createTempBin = functions.firestore.document('bins/{binID}').onUpdate((s
                 inUse:false,
                 user:''
             }).then(() => {
-                console.log(`Temp Bin added: ${conext.params.binID}`)
+                console.log(`Temp Bin added: ${conext.params.binID}`);
             });
     }
 });
