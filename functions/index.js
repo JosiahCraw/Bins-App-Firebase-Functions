@@ -55,8 +55,7 @@ exports.createTempBin = functions.firestore.document('bins/{binID}').onUpdate((s
             {bin:context.params.binID,
                 closed:false,
                 inUse:false,
-                user:''
-            }).then(() => {
+                user:''}).then(() => {
                 console.log(`Temp Bin added: ${conext.params.binID}`);
             });
     }
