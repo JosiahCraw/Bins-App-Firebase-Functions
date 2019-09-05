@@ -38,6 +38,36 @@ exports.destroyTempBin = functions.firestore.document('tempBins/{tempID}').onUpd
     }
 });
 
+exports.checkHighScore = functions.firestore.document('Users/{userID}').onUpdate((snap, context) => {
+    if (snap.after.data().Count != snap.after.data().Count) {
+        if (snap.after.data().Count > db.doc('highScores/1').get('count')) {
+            db.doc('highScores/1').set({count:snap.after.data().Count,
+                user: context.params.userID
+            });
+        }
+        if (snap.after.data().Count > db.doc('highScores/2').get('count')) {
+            db.doc('highScores/2').set({count:snap.after.data().Count,
+                user: context.params.userID
+            });
+        }
+        if (snap.after.data().Count > db.doc('highScores/3').get('count')) {
+            db.doc('highScores/3').set({count:snap.after.data().Count,
+                user: context.params.userID
+            });
+        }
+        if (snap.after.data().Count > db.doc('highScores/4').get('count')) {
+            db.doc('highScores/4').set({count:snap.after.data().Count,
+                user: context.params.userID
+            });
+        }
+        if (snap.after.data().Count > db.doc('highScores/5').get('count')) {
+            db.doc('highScores/5').set({count:snap.after.data().Count,
+                user: context.params.userID
+            });
+        }
+    }
+});
+
 exports.createTempBin = functions.firestore.document('bins/{binID}').onUpdate((snap, context) => {
     if (snap.after.data().tempCode != snap.before.data().tempCode) {
         db.doc(`bins/${context.params.binID}`)
