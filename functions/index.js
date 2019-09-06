@@ -32,49 +32,32 @@ exports.addUserToBin = functions.firestore.document('tempBins/{tempID}').onUpdat
 exports.destroyTempBin = functions.firestore.document('tempBins/{tempID}').onUpdate((snap, context) => {
     const data = snap.after.data();
     if (snap.after.data().closed) {
+
+        db.doc(`bins/${snap.after.data().bin}`).update({user:''});
+
         db.doc(`tempBins/${context.params.tempID}`).delete().then(() => {
-            console.log(`Temp Bin removed: ${context.parms.tempID}`);
+            console.log(`Temp Bin removed: ${context.params.tempID}`);
         });
     }
 });
 
 exports.checkHighScore = functions.firestore.document('Users/{userID}').onUpdate((snap, context) => {
-    if (snap.after.data().Count != snap.after.data().Count) {
-        if (snap.after.data().Count > db.doc('highScores/1').get('count')) {
-            db.doc('highScores/1').set({count:snap.after.data().Count,
-                user: context.params.userID
-            });
-        }
-        if (snap.after.data().Count > db.doc('highScores/2').get('count')) {
-            db.doc('highScores/2').set({count:snap.after.data().Count,
-                user: context.params.userID
-            });
-        }
-        if (snap.after.data().Count > db.doc('highScores/3').get('count')) {
-            db.doc('highScores/3').set({count:snap.after.data().Count,
-                user: context.params.userID
-            });
-        }
-        if (snap.after.data().Count > db.doc('highScores/4').get('count')) {
-            db.doc('highScores/4').set({count:snap.after.data().Count,
-                user: context.params.userID
-            });
-        }
-        if (snap.after.data().Count > db.doc('highScores/5').get('count')) {
-            db.doc('highScores/5').set({count:snap.after.data().Count,
-                user: context.params.userID
-            });
-        }
-    }
+	let scoreRef = db.collection('highScores')
+	let query = scoreRef.where('count', '<', snap.after.data().Count).get()
+		.then(snapshot => {
+			if (snapshot.empty) {
+				return;
+			}
+			let docs = snapshot.docs;
+			let first = docs[0];
+			first.ref.set({user: context.params.userID,
+				count: snap.after.data().Count
+				});
+		});
 });
 
 exports.createTempBin = functions.firestore.document('bins/{binID}').onUpdate((snap, context) => {
     if (snap.after.data().tempCode != snap.before.data().tempCode) {
-        db.doc(`bins/${context.params.binID}`)
-            .update({user:''})
-            .then(() => {
-                console.log(`Removed user from ${context.params.binID}`);
-            });
         db.doc(`tempBins/${snap.before.data().tempCode}`)
             .update({closed:true})
             .then(() => {
@@ -86,7 +69,7 @@ exports.createTempBin = functions.firestore.document('bins/{binID}').onUpdate((s
                 closed:false,
                 inUse:false,
                 user:''}).then(() => {
-                console.log(`Temp Bin added: ${conext.params.binID}`);
+                console.log(`Temp Bin added: ${context.params.binID}`);
             });
     }
 });
