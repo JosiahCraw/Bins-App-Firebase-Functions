@@ -8,7 +8,8 @@ const db = admin.firestore();
 exports.setUpUser = functions.auth.user().onCreate((user) => {
     db.collection('Users')
     .doc(user.uid)
-    .set({Count:0}).then(() => {
+    .set({Count:0,
+        Name:''}).then(() => {
         console.log('User write succesful');
     });
 });
@@ -42,18 +43,16 @@ exports.destroyTempBin = functions.firestore.document('tempBins/{tempID}').onUpd
 });
 
 exports.checkHighScore = functions.firestore.document('Users/{userID}').onUpdate((snap, context) => {
-	let scoreRef = db.collection('highScores')
-	let query = scoreRef.where('count', '<', snap.after.data().Count).get()
-		.then(snapshot => {
-			if (snapshot.empty) {
-				return;
-			}
-			let docs = snapshot.docs;
-			let first = docs[0];
-			first.ref.set({user: context.params.userID,
-				count: snap.after.data().Count
-				});
+	let scoreRef = db.collection('highScore');
+	let query = scoreRef.where('count', '<', snap.after.data().Count);
+        console.log(`Checking if ${snap.after.data().Count} is a high score`);
+        query.orderBy('count', 'desc').limit(1).get().then(snapshot => {
+	        snapshot.forEach(docSnap => {
+                    console.log(`Got Doc user score: ${snap.after.data().Count}`);
+		    docSnap.ref.set({user:context.params.userID,
+		        count:snap.after.data().Count});
 		});
+        });
 });
 
 exports.createTempBin = functions.firestore.document('bins/{binID}').onUpdate((snap, context) => {
@@ -72,4 +71,12 @@ exports.createTempBin = functions.firestore.document('bins/{binID}').onUpdate((s
                 console.log(`Temp Bin added: ${context.params.binID}`);
             });
     }
+});
+
+exports.updateHighScore = functions.firestore.document('highScore/{position}').onUpdate((snap, context) => {
+    var next = parseInt((Number(context.params.position)+1));
+    db.doc(`highScore/${next}`).update({
+        count:snap.before.data().count,
+        user:snap.before.data().user});
+    console.log(`Shifted from ${context.params.position}`)
 });
