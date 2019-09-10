@@ -55,6 +55,14 @@ exports.checkHighScore = functions.firestore.document('Users/{userID}').onUpdate
         });
 });
 
+exports.checkIfBinsIsFull = functions.firestore.document('bins/{binID}').onUpdate((snap, context) => {
+    if (snap.after.data().full) {
+        db.doc(`fullBins/${context.params.binID}`).set({});
+    } else if (snap.after.data().full == false && snap.before.data().full == true) {
+        db.doc(`fullBins/${context.params.binID}`).delete();
+    }
+});
+
 exports.createTempBin = functions.firestore.document('bins/{binID}').onUpdate((snap, context) => {
     if (snap.after.data().tempCode != snap.before.data().tempCode) {
         db.doc(`tempBins/${snap.before.data().tempCode}`)
