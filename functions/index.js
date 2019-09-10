@@ -9,7 +9,7 @@ exports.setUpUser = functions.auth.user().onCreate((user) => {
     db.collection('Users')
     .doc(user.uid)
     .set({Count:0,
-        Name:''}).then(() => {
+        Name:user.displayName}).then(() => {
         console.log('User write succesful');
     });
 });
