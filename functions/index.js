@@ -65,18 +65,18 @@ exports.checkIfBinsIsFull = functions.firestore.document('bins/{binID}').onUpdat
 
 exports.createTempBin = functions.firestore.document('bins/{binID}').onUpdate((snap, context) => {
     if (snap.after.data().tempCode != snap.before.data().tempCode) {
-        db.doc(`tempBins/${snap.before.data().tempCode}`)
-            .update({closed:true})
-            .then(() => {
-                console.log(`Set closed: ${snap.before.data().tempCode}`);
-            });
-
         db.doc(`tempBins/${snap.after.data().tempCode}`).set(
             {bin:context.params.binID,
                 closed:false,
                 inUse:false,
                 user:''}).then(() => {
                 console.log(`Temp Bin added: ${context.params.binID}`);
+            });
+
+	db.doc(`tempBins/${snap.before.data().tempCode}`)
+            .update({closed:true})
+            .then(() => {
+                console.log(`Set closed: ${snap.before.data().tempCode}`);
             });
     }
 });
