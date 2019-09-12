@@ -83,8 +83,12 @@ exports.createTempBin = functions.firestore.document('bins/{binID}').onUpdate((s
 
 exports.updateHighScore = functions.firestore.document('highScore/{position}').onUpdate((snap, context) => {
     var next = parseInt((Number(context.params.position)+1));
-    db.doc(`highScore/${next}`).update({
-        count:snap.before.data().count,
-        user:snap.before.data().user});
-    console.log(`Shifted from ${context.params.position}`)
+    if (snap.before.data().user == snap.after.data().user) {
+        return;
+    } else {
+        db.doc(`highScore/${next}`).update({
+            count:snap.before.data().count,
+            user:snap.before.data().user});
+        console.log(`Shifted from ${context.params.position}`)
+    }
 });
